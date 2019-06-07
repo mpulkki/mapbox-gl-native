@@ -39,6 +39,10 @@ public:
     size_t vertexStartIndex;
     // The crossTileID is only filled/used on the foreground for variable text anchors
     uint32_t crossTileID = 0u;
+    // The placedOrientation is only used when symbol layer's property is set to support
+    // placement for orientation variants.
+    optional<style::TextWritingModeType> placedOrientation;
+    float angle = 0;
 };
 
 class SymbolBucket final : public Bucket {
@@ -53,7 +57,9 @@ public:
                  bool sortFeaturesByY,
                  const std::string bucketLeaderID,
                  const std::vector<SymbolInstance>&&,
-                 const float tilePixelRatio);
+                 const float tilePixelRatio,
+                 bool allowVerticalPlacement,
+                 std::vector<style::TextWritingModeType> placementModes);
     ~SymbolBucket() override;
 
     void upload(gfx::UploadPass&) override;
@@ -139,6 +145,8 @@ public:
     uint32_t bucketInstanceId;
     bool justReloaded = false;
     bool hasVariablePlacement = false;
+    const bool allowVerticalPlacement;
+    const std::vector<style::TextWritingModeType> placementModes;
     mutable optional<bool> hasFormatSectionOverrides_;
 
     std::shared_ptr<std::vector<size_t>> featureSortOrder;

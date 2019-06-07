@@ -98,6 +98,8 @@ private:
     bool sdfIcons = false;
     bool iconsNeedLinear = false;
     bool sortFeaturesByY = false;
+    bool allowVerticalPlacement = false;
+    std::vector<style::TextWritingModeType> placementModes;
 
     style::TextSize::UnevaluatedType textSize;
     style::IconSize::UnevaluatedType iconSize;

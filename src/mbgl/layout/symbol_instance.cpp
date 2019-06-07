@@ -38,7 +38,8 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
                                std::u16string key_,
                                const float overscaling,
                                const float rotate,
-                               float radialTextOffset_) :
+                               float radialTextOffset_,
+                               bool allowVerticalPlacement) :
     anchor(anchor_),
     line(line_),
     hasText(false),
@@ -58,6 +59,11 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
     radialTextOffset(radialTextOffset_),
     singleLine(shapedTextOrientations.singleLine) {
 
+    if (allowVerticalPlacement && shapedTextOrientations.vertical) {
+        const float verticalPointLabelAngle = 90.0f;
+        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate + verticalPointLabelAngle);
+    }
+
     // Create the quads used for rendering the icon and glyphs.
     if (shapedIcon) {
         iconQuad = getIconQuad(*shapedIcon, layout, layoutTextSize, shapedTextOrientations.horizontal);
@@ -67,11 +73,11 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
     const auto initHorizontalGlyphQuads = [&] (SymbolQuads& quads, const Shaping& shaping) {
         writingModes |= WritingModeType::Horizontal;
         if (!singleLine) {
-            quads = getGlyphQuads(shaping, textOffset, layout, textPlacement, positions);
+            quads = getGlyphQuads(shaping, textOffset, layout, textPlacement, positions, allowVerticalPlacement);
             return;
         }
         if (!singleLineInitialized) {
-            rightJustifiedGlyphQuads = getGlyphQuads(shaping, textOffset, layout, textPlacement, positions);
+            rightJustifiedGlyphQuads = getGlyphQuads(shaping, textOffset, layout, textPlacement, positions, allowVerticalPlacement);
             singleLineInitialized = true;
         }
     };
@@ -90,7 +96,7 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
 
     if (shapedTextOrientations.vertical) {
         writingModes |= WritingModeType::Vertical;
-        verticalGlyphQuads = getGlyphQuads(shapedTextOrientations.vertical, textOffset, layout, textPlacement, positions);
+        verticalGlyphQuads = getGlyphQuads(shapedTextOrientations.vertical, textOffset, layout, textPlacement, positions, allowVerticalPlacement);
     }
 
     // 'hasText' depends on finding at least one glyph in the shaping that's also in the GlyphPositionMap

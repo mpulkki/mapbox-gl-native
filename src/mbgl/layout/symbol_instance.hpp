@@ -43,9 +43,11 @@ public:
                    std::u16string key,
                    const float overscaling,
                    const float rotate,
-                   float radialTextOffset);
+                   float radialTextOffset,
+                   bool allowVerticalPlacement);
 
     optional<size_t> getDefaultHorizontalPlacedTextIndex() const;
+
     Anchor anchor;
     GeometryCoordinates line;
     bool hasText;
@@ -59,6 +61,7 @@ public:
 
     optional<SymbolQuad> iconQuad;
     CollisionFeature textCollisionFeature;
+    optional<CollisionFeature> verticalTextCollisionFeature = nullopt;
     CollisionFeature iconCollisionFeature;
     WritingModeType writingModes;
     std::size_t layoutFeatureIndex; // Index into the set of features included at layout time
