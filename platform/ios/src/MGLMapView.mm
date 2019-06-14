@@ -240,6 +240,7 @@ public:
 @property (nonatomic) CGFloat quickZoomStart;
 @property (nonatomic, getter=isDormant) BOOL dormant;
 @property (nonatomic, readonly, getter=isRotationAllowed) BOOL rotationAllowed;
+@property (nonatomic) CGFloat currentRotation;
 @property (nonatomic) BOOL shouldTriggerHapticFeedbackForCompass;
 @property (nonatomic) MGLMapViewProxyAccessibilityElement *mapViewProxyAccessibilityElement;
 @property (nonatomic) MGLAnnotationContainerView *annotationContainerView;
@@ -577,6 +578,7 @@ public:
 
     _rotate = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(handleRotateGesture:)];
     _rotate.delegate = self;
+    _rotate.delaysTouchesBegan = YES;
     [self addGestureRecognizer:_rotate];
     _rotateEnabled = YES;
 
@@ -1756,10 +1758,6 @@ public:
 {
     if ( ! self.isRotateEnabled) return;
 
-    if ( self.mbglMap.isScaling() && abs(rotate.rotation) < 2 ) {
-        NSLog(@"ROTATION: %f", rotate.rotation);
-        return;
-    }
     [self cancelTransitions];
 
     CGPoint centerPoint = [self anchorPointForGesture:rotate];
@@ -1782,6 +1780,14 @@ public:
     }
     else if (rotate.state == UIGestureRecognizerStateChanged)
     {
+        
+        // jk - once it does start rotating, it'd jumpy
+        self.currentRotation += rotate.rotation;
+        if ( abs(self.currentRotation) < 20 ) {
+            NSLog(@"ROTATION: %f", rotate.rotation);
+            return;
+        }
+        
         CGFloat newDegrees = MGLDegreesFromRadians(self.angle + rotate.rotation) * -1;
 
         // constrain to +/-30 degrees when merely rotating like Apple does
@@ -1823,6 +1829,8 @@ public:
     {
         CGFloat velocity = rotate.velocity;
         CGFloat decelerationRate = self.decelerationRate;
+        self.currentRotation = 0;
+        
         if (decelerationRate != MGLMapViewDecelerationRateImmediate && fabs(velocity) > 3)
         {
             CGFloat radians = self.angle + rotate.rotation;
