@@ -215,6 +215,8 @@ public:
 @property (nonatomic) UIRotationGestureRecognizer *rotate;
 @property (nonatomic) UILongPressGestureRecognizer *quickZoom;
 @property (nonatomic) UIPanGestureRecognizer *twoFingerDrag;
+// jk
+@property (nonatomic) NSMutableArray<UIGestureRecognizer *> *activeGestureRecognizers;
 
 @property (nonatomic) UIInterfaceOrientation currentOrientation;
 @property (nonatomic) UIInterfaceOrientationMask applicationSupportedInterfaceOrientations;
@@ -616,6 +618,8 @@ public:
     _singleTapGestureRecognizer.delegate = self;
     [_singleTapGestureRecognizer requireGestureRecognizerToFail:_quickZoom];
     [self addGestureRecognizer:_singleTapGestureRecognizer];
+
+    _activeGestureRecognizers = [[NSMutableArray alloc] init];
 
     // observe app activity
     //
@@ -1662,19 +1666,12 @@ public:
     MGLMapCamera *oldCamera = self.camera;
 
     self.cameraChangeReasonBitmask |= MGLCameraChangeReasonGesturePinch;
-
-    // jk - this stops the map from rotating at all
-//    if ( self.rotateEnabled ) {
-//        self.currentRotation += self.rotate.rotation;
-//        if ( std::abs(self.currentRotation) < 20 ) {
-//            self.rotate.rotation = 0;
-//        }
-//    }
     
     if (pinch.state == UIGestureRecognizerStateBegan)
     {
         self.scale = powf(2, [self zoomLevel]);
 
+        [self.activeGestureRecognizers addObject:pinch];
         [self notifyGestureDidBegin];
     }
     else if (pinch.state == UIGestureRecognizerStateChanged)
@@ -1707,6 +1704,8 @@ public:
     }
     else if (pinch.state == UIGestureRecognizerStateEnded || pinch.state == UIGestureRecognizerStateCancelled)
     {
+        [self.activeGestureRecognizers removeObject:pinch];
+
         CGFloat velocity = pinch.velocity;
         if (isnan(velocity))
         {
@@ -1783,7 +1782,7 @@ public:
         }
 
         self.shouldTriggerHapticFeedbackForCompass = NO;
-
+        [self.activeGestureRecognizers addObject:rotate];
         [self notifyGestureDidBegin];
     }
     else if (rotate.state == UIGestureRecognizerStateChanged)
@@ -1791,8 +1790,7 @@ public:
         
 //        // jk - once it does start rotating, it'd jumpy. Also, this happens whenever I rotate, not just when zooming.
         self.currentRotation += self.rotate.rotation;
-        NSLog(@"PINCH: %f", self.scale);
-        if ( std::abs(self.currentRotation) < 20 && std::abs(self.scale) > 20 ) {
+        if ( std::abs(self.currentRotation) < 50 && [self.activeGestureRecognizers containsObject:self.pinch]) {
             NSLog(@"ROTATION: %f", rotate.rotation);
             return;
         }
@@ -1836,6 +1834,7 @@ public:
     }
     else if (rotate.state == UIGestureRecognizerStateEnded || rotate.state == UIGestureRecognizerStateCancelled)
     {
+        [self.activeGestureRecognizers removeObject:rotate];
         CGFloat velocity = rotate.velocity;
         CGFloat decelerationRate = self.decelerationRate;
         self.currentRotation = 0;
