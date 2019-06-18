@@ -130,5 +130,6 @@
   "query-tests/regressions/mapbox-gl-js#7883": "https://github.com/mapbox/mapbox-gl-native/issues/14585",
   "expression-tests/number-format/currency": "https://github.com/mapbox/mapbox-gl-native/issues/13632",
   "expression-tests/number-format/default": "https://github.com/mapbox/mapbox-gl-native/issues/13632",
-  "expression-tests/number-format/precision": "https://github.com/mapbox/mapbox-gl-native/issues/13632"
+  "expression-tests/number-format/precision": "https://github.com/mapbox/mapbox-gl-native/issues/13632",
+  "render-tests/tilejson-bounds/overwrite-bounds": "needs to be ported https://github.com/mapbox/mapbox-gl-js/issues/8192"
 }
