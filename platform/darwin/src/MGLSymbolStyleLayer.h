@@ -1642,7 +1642,7 @@ MGL_EXPORT
  You can set this property to an expression containing any of the following:
  
  * Constant `MGLTextAnchor` array values
- * Constant array, whose each element is any of the following constant string
+ * Constant array, in which each element is any of the following constant string
  values:
    * `center`: The center of the text is placed closest to the anchor.
    * `left`: The left side of the text is placed closest to the anchor.
@@ -1687,7 +1687,7 @@ MGL_EXPORT
  You can set this property to an expression containing any of the following:
  
  * Constant `MGLTextWritingMode` array values
- * Constant array, whose each element is any of the following constant string
+ * Constant array, in which each element is any of the following constant string
  values:
    * `horizontal`: If a text's language supports horizontal writing mode,
  symbols with point placement would be laid out horizontally.
