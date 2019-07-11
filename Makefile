@@ -231,6 +231,11 @@ ifdef IOS_LATEST
 	-destination 'platform=iOS Simulator,OS=latest,name=iPad Pro (11-inch)'
 endif
 
+ifdef IOS_13
+	IOS_XCODEBUILD_SIM += \
+	-destination 'platform=iOS Simulator,OS=13.0,name=iPhone 8'
+endif
+
 ifdef IOS_11
 	IOS_XCODEBUILD_SIM += \
 	-destination 'platform=iOS Simulator,OS=11.4,name=iPhone 7' \

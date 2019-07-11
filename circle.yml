@@ -980,6 +980,7 @@ jobs:
       BUILDTYPE: Debug
       HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
+      IOS_13: YES
     steps:
       - install-macos-dependencies
       - install-dependencies
@@ -1086,6 +1087,7 @@ jobs:
       HOMEBREW_NO_AUTO_UPDATE: 1
       HOMEBREW_NO_INSTALL_CLEANUP: 1
       SLACK_CHANNEL: C0ACM9Q2C
+      IOS_13: YES
     steps:
       - install-macos-dependencies
       - install-dependencies
