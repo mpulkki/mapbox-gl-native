@@ -12,11 +12,14 @@ target_sources(mbgl-glfw
     PRIVATE platform/glfw/glfw_renderer_frontend.cpp
     PRIVATE platform/glfw/settings_json.hpp
     PRIVATE platform/glfw/settings_json.cpp
-    PRIVATE platform/default/include/mbgl/util/default_styles.hpp
+    PRIVATE platform/glfw/obj_mesh_loader.cpp
+    PRIVATE platform/glfw/asset_database.cpp
+    PRIVATE platform/glfw/mesh_asset_layer.cpp
 )
 
 target_include_directories(mbgl-glfw
     PRIVATE platform/default/include
+    PRIVATE src
 )
 
 target_link_libraries(mbgl-glfw

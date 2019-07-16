@@ -1,13 +1,18 @@
 #include "glfw_view.hpp"
 #include "glfw_renderer_frontend.hpp"
 #include "settings_json.hpp"
+#include "mesh_loader.hpp"
+#include "asset_database.hpp"
+#include "mesh_asset_layer.hpp"
 
 #include <mbgl/gfx/backend.hpp>
 #include <mbgl/util/default_styles.hpp>
 #include <mbgl/util/logging.hpp>
 #include <mbgl/util/platform.hpp>
 #include <mbgl/util/string.hpp>
+#include <mbgl/util/geo.hpp>
 #include <mbgl/storage/default_file_source.hpp>
+#include <mbgl/storage/local_file_source.hpp>
 #include <mbgl/style/style.hpp>
 #include <mbgl/renderer/renderer.hpp>
 
@@ -20,9 +25,14 @@
 #include <cstdio>
 #include <array>
 
+using namespace mbgl;
+using namespace mbgl::style;
+using namespace mbgl::platform;
+
 namespace {
 
 GLFWView* view = nullptr;
+const char* layerName = "custom_3d_layer";
 
 } // namespace
 
@@ -142,6 +152,7 @@ int main(int argc, char *argv[]) {
         }
 
         mbgl::util::default_styles::DefaultStyle newStyle = mbgl::util::default_styles::orderedStyles[currentStyleIndex];
+
         map.getStyle().loadURL(newStyle.url);
         view->setWindowTitle(newStyle.name);
 
@@ -182,6 +193,45 @@ int main(int argc, char *argv[]) {
     }
 
     map.getStyle().loadURL(style);
+
+    std::shared_ptr<AssetDatabase> meshDatabase = std::make_shared<AssetDatabase>();
+
+    // Initialize the mesh database with our test meshes
+    const float pi = 3.14159265359f;
+
+    mat4 bunnyTransform;
+    matrix::identity(bunnyTransform);
+    matrix::scale(bunnyTransform, bunnyTransform, 0.005, 0.005, 0.005);
+    matrix::rotate_x(bunnyTransform, bunnyTransform, pi / 2);
+
+    mat4 teapotTransform;
+    matrix::identity(teapotTransform);
+    matrix::scale(teapotTransform, teapotTransform, 0.0005, 0.0005, 0.0005);
+    matrix::rotate_x(teapotTransform, teapotTransform, pi / 2);
+
+    mat4 webBunnyTransform;
+    matrix::identity(webBunnyTransform);
+    matrix::translate(webBunnyTransform, webBunnyTransform, 0, 0, -20);
+    matrix::scale(webBunnyTransform, webBunnyTransform, 0.02, 0.02, 0.02);
+    matrix::rotate_x(webBunnyTransform, webBunnyTransform, pi / 2);
+    matrix::rotate_y(webBunnyTransform, webBunnyTransform, pi / 2);
+
+    meshDatabase
+        ->addMeshSource(AssetDatabase::Descriptor::FromFile({ 60.171180, 24.943968 }, "file://../../../test/obj/bunny.obj", bunnyTransform))
+        ->addMeshSource(AssetDatabase::Descriptor::FromFile({ 60.169696, 24.934917 }, "file://../../../test/obj/teapot.obj", teapotTransform))
+        ->addMeshSource(AssetDatabase::Descriptor::FromWeb({ 60.155502, 24.955453 }, "http://127.0.0.1:8000/test/obj/bunny.obj", webBunnyTransform));
+
+    // Inject our custom layer creation after a style has been loaded.
+    // This is required because loadURL executes some async logic
+    view->setStyleLoadFinishedCallback([&map, &meshDatabase]() {
+        Layer* layer = map.getStyle().getLayer(layerName);
+        if (!layer)
+        {
+            map.getStyle().addLayer(std::make_unique<CustomLayer>(
+                layerName,
+                std::make_unique<MeshAssetLayer>(meshDatabase)));
+        }
+    });
 
     view->run();
 

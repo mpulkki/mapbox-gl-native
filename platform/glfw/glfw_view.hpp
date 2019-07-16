@@ -44,6 +44,10 @@ public:
         resetDatabaseCallback = callback;
     };
 
+    void setStyleLoadFinishedCallback(std::function<void()> callback) {
+        styleLoadFinishedCallback = callback;
+    }
+
     void setShouldClose();
 
     void setWindowTitle(const std::string&);
@@ -127,6 +131,7 @@ private:
     std::function<void()> pauseResumeCallback;
     std::function<void()> onlineStatusCallback;
     std::function<void()> resetDatabaseCallback;
+    std::function<void()> styleLoadFinishedCallback;
     std::function<void(mbgl::Map*)> animateRouteCallback;
 
     mbgl::util::RunLoop runLoop;

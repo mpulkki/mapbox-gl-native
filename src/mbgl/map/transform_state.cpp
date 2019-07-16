@@ -36,6 +36,7 @@ void TransformState::getProjMatrix(mat4& projMatrix, uint16_t nearZ, bool aligne
     const double cameraToCenterDistance = getCameraToCenterDistance();
     auto offset = getCenterOffset();
 
+
     // Find the distance from the viewport center point
     // [width/2 + offset.x, height/2 + offset.y] to the top edge, to point
     // [width/2 + offset.x, 0] in Z units, using the law of sines.
